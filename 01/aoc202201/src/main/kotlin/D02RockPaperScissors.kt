@@ -61,13 +61,12 @@ class Round(private val first: Move, private val second: Move)  {
 
 object D02RockPaperScissors {
    fun playRounds(input: String): Int {
-       val out =  input.split("\n")
+       return input.split("\n")
            .asSequence()
            .filter(String::any)
            .map(String::trim)
            .map(Round::fromString)
            .map(Round::play)
            .reduce { acc, i -> acc + i}
-       return out
    }
 }
