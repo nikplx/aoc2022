@@ -6,7 +6,7 @@ object D04Ranges {
             .reduce { acc, i -> acc + i}
     }
 
-    private fun scoreFromRange(r: List<String>): Int {
+    fun scoreFromRange(r: List<String>): Int {
         val (r1, r2) = r.map { s ->
             val splitted = s.split("-").map(String::toInt)
             (splitted[0]..splitted[1])
