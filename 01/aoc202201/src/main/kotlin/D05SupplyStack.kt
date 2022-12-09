@@ -1,12 +1,32 @@
 import java.lang.IllegalArgumentException
 import java.util.Stack
 
-typealias Container = String?
 typealias Port = List<Stack<Container>>
 
-fun applyMove(p: Port, d: Direction) {
+@JvmInline
+value class Container(val s: String? = null) {
+    fun empty(): Boolean {
+        return s == null
+    }
+    companion object {
+        fun fromString(inp: String): Container {
+            val containerRegex = Regex("\\[([a-zA-Z])\\]")
+
+            if (!inp.trim().any()) {
+                return Container()
+            }
+
+            val match = containerRegex.find(inp) ?: throw IllegalArgumentException("blah")
+            val (name) = match.destructured
+
+            return Container(name)
+        }
+    }
+}
+
+fun Port.move(d: Direction) {
     for (i in 1..d.amount) {
-        p[d.to].add(p[d.from].pop())
+        this[d.to].add(this[d.from].pop())
     }
 }
 
@@ -22,7 +42,6 @@ data class Direction(val amount: Int, val from: Int, val to: Int) {
 }
 
 object D05SupplyStack {
-    private val containerRegex = Regex("\\[([a-zA-Z])\\]")
 
     fun moveContainers(inp: String): String {
         val (init, moves) = inp.split("\n\n")
@@ -32,7 +51,7 @@ object D05SupplyStack {
             .map{ Direction.fromString(it) }
 
         directions.forEach {
-            applyMove(port, it)
+            port.move(it)
         }
 
         val out = port.fold("") { acc, item ->
@@ -40,18 +59,6 @@ object D05SupplyStack {
         }
 
         return out
-    }
-
-
-    private fun parseContainer(inp: String): Container {
-        if (!inp.trim().any()) {
-            return null
-        }
-
-        val match = containerRegex.find(inp) ?: throw IllegalArgumentException("blah")
-        val (name) = match.destructured
-
-        return name
     }
 
     private fun parseInit(inp: String): Port {
@@ -63,12 +70,12 @@ object D05SupplyStack {
             .map { it.chunked(4) }
             .forEach {
                 it
-                    .map { item -> parseContainer(item) }
+                    .map { item -> Container.fromString(item) }
                     .forEachIndexed { idx, item ->
                         if (result.size < idx+1)
                             result.add(idx, Stack())
 
-                        if (item != null)
+                        if (!item.empty())
                             result[idx].add(item)
                 }
             }
